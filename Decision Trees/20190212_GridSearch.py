@@ -6,6 +6,7 @@ from sklearn.metrics import make_scorer
 from sklearn.metrics import accuracy_score
 from sklearn.tree import DecisionTreeClassifier
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
+import time
 from sklearn.metrics import roc_curve, auc
 
 
@@ -42,24 +43,22 @@ results = gs.cv_results_
 plt.figure(figsize=(12, 12))
 # plt.title("GridSearchCV evaluating using multiple scorers simultaneously",
 #           fontsize=16)
-plt.xlabel(r"$Max\ depth$",fontsize=10)
-plt.ylabel(r"$Score$",fontsize=10)
+plt.xlabel(r"$Max\ depth\ of\ decision\ tree$",fontsize=12)
+plt.ylabel(r"$Score$",fontsize=12)
 
 ax = plt.gca()
 # ax.set_xlim(0, 402)
-ax.set_ylim(0.73, 1)
+ax.set_ylim(0.3, 1)
 # xmajorFormatter = FormatStrFormatter('%0.1f')
 xmajorLocator= MultipleLocator(1)
 xmajorFormatter = FormatStrFormatter('%d')
 ax.xaxis.set_major_locator(xmajorLocator)
 ax.xaxis.set_major_formatter(xmajorFormatter)
 
-ymajorLocator= MultipleLocator(1)
-ymajorFormatter = FormatStrFormatter('%d')
-ax.xaxis.set_major_locator(xmajorLocator)
-ax.xaxis.set_major_formatter(xmajorFormatter)
-
-
+ymajorLocator= MultipleLocator(0.1)
+ymajorFormatter = FormatStrFormatter('%0.1f')
+ax.yaxis.set_major_locator(ymajorLocator)
+ax.yaxis.set_major_formatter(ymajorFormatter)
 
 """Get the regular numpy array from the MaskedArray"""
 X_axis = np.array(results['param_max_depth'].data, dtype=int)
@@ -75,7 +74,7 @@ for scorer, color in zip(sorted(scoring), ['g', 'k']):
                         alpha=0.1 if sample == 'test' else 0, color=color)
         ax.plot(X_axis, sample_score_mean, style, color=color,
                 alpha=1 if sample == 'test' else 0.7,
-                label="%s (%s)" % (scorer, sample))
+                label=r"$%s (%s)$" % (scorer, sample))
 
     best_index = np.nonzero(results['rank_test_%s' % scorer] == 1)[0][0]
     best_score = results['mean_test_%s' % scorer][best_index]
@@ -90,4 +89,6 @@ for scorer, color in zip(sorted(scoring), ['g', 'k']):
 
 plt.legend(loc="upper right")
 plt.grid(True)
+now = time.strftime("%Y-%m-%d-%H-%M", time.localtime(time.time()))
+plt.savefig("Decision_Tree_Performance_Evaluation_Depth_{}.pdf".format(now))
 plt.show()
